@@ -1,0 +1,7 @@
+i pkginfo
+!default 0755 root bin
+d none bin ? ? ?
+f none bin/zio=zio
+d none share ? ? ?
+d none share/man ? ? ?
+d none share/man/man1m ? ? ?

@@ -1,0 +1,12 @@
+CLASSES=none
+BASEDIR=/usr/local
+TZ=PST
+PATH=/sbin:/usr/sbin:/usr/bin:/usr/sadm/install/bin
+PKG=zio
+NAME=zfs-zabbix
+VERSION=1.0
+CATEGORY=system
+DESC=zfs zabbix advanced monitoring
+VENDOR=Matus Bursa, ESET, spol. s r.o.
+EMAIL=burso@burso.eu
+PKGSAV=/var/sadm/pkg/zio/save

@@ -1,0 +1,8 @@
+Package: zio
+Version: 0.3-1
+Architecture: amd64
+Maintainer: Matus Bursa <burso@burso.eu>
+Installed-Size: 25
+Section: misc
+Priority: optional
+Description: zfs advanced monitoring

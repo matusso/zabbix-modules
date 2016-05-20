@@ -1,0 +1,11 @@
+Source: zio
+Maintainer: Matus Bursa <burso@burso.eu>
+Section: misc
+Priority: optional
+Standards-Version: 0.3.1
+Build-Depends: debhelper (>= 9)
+
+Package: zio
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: zfs advanced monitoring 
