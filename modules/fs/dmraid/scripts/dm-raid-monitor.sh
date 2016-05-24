@@ -9,8 +9,10 @@ display_dmraid_json() {
         while [ $iter -ne ${#raids[@]} ]; do
                 iter=$[$iter+1]
 
-                if [ $(($iter)) -ne ${#raids[@]} ]; then echo -e "\t\t{ \"{#FSNAME}\":\"${raids[$(($iter-1))]}\",\t\"{#FSTYPE}\":\"dm-raid\"},"
-                else echo -e "\t\t{ \"{#FSNAME}\":\"${raids[$(($iter-1))]}\",\t\"{#FSTYPE}\":\"dm-raid\"}"; fi
+                if [ $(($iter)) -ne ${#raids[@]} ];
+                    then echo -e "\t\t{ \"{#FSNAME}\":\"${raids[$(($iter-1))]}\",\t\"{#FSTYPE}\":\"dm-raid\"},"
+                else
+                    echo -e "\t\t{ \"{#FSNAME}\":\"${raids[$(($iter-1))]}\",\t\"{#FSTYPE}\":\"dm-raid\"}"; fi
 
         done
         echo -e "\t]\n}"

@@ -7,7 +7,6 @@
 #include "config.h"
 
 void usage(char * app_name);
-
 void get_config(int argc, char ** argv, config_t * cnf) {
 	int c = 0;
 
