@@ -1,0 +1,5 @@
+# fs/zfs
+zabbix  ALL = (ALL) NOPASSWD:  /usr/local/bin/zio *, /etc/zabbix/scripts/zfs-monitor.sh *
+
+# fs/dmraid
+zabbix  ALL = (ALL) NOPASSWD:  /etc/zabbix/scripts/dmraid-monitor.sh *
