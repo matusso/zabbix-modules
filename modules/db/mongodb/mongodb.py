@@ -55,17 +55,16 @@ class Mongo:
         self.client = pymongo.MongoClient(connection_string)
 
     def get_databases(self):
-        for i in self.client.database_names():
-            print i
+        return self.client.database_names()
 
     def get_stats(self, database):
         db = self.client[database]
-        print db.command('dbstats')
+        return db.command('dbstats')
 
 if __name__ == '__main__':
     c = Config(sys.argv[1:])
     m = Mongo(c.connection_string,
               c.replica)
 
-    m.get_databases()
-    m.get_stats("local")
+    for database in m.get_databases():
+        print m.get_stats(database)
