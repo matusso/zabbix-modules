@@ -81,9 +81,13 @@ if __name__ == '__main__':
     m = Mongo(c.connection_string,
               c.replica)
 
+
     if (c.option == ConfigOptions.get_databases):
         print m.get_databases()
 
     if (c.option == ConfigOptions.get_stats):
         for database in m.get_databases():
-            print m.get_stats(database)
+            j = json.loads(json.dumps(m.get_stats(database)))
+
+            print j['storageSize']
+
