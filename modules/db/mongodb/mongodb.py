@@ -9,6 +9,12 @@ import json
 def usage():
     print "./mongodb.py -c|--config=<file> -d|--database=<dbname>"
 
+
+# options
+class ConfigOptions:
+    get_databases = 0
+    get_stats = 1
+
 class Config:
     config_file = "conf/mongodb.conf"
 
@@ -16,10 +22,13 @@ class Config:
     database = "local"
     connection_string = "mongodb://127.0.0.1:27017"
     replica = False
+    option = None
 
     def cmdline_arg(self, argv):
         try:
-            opts, args = getopt.getopt(argv, "hc:d:", ["help", "config=", "database="])
+            opts, args = getopt.getopt(argv, "hc:d:gs", ["help", "config=", "database=",
+                                                         "get-databases",
+                                                         "get-stats"])
         except getopt.GetoptError:
             usage()
             sys.exit(1)
@@ -34,6 +43,12 @@ class Config:
 
             elif opt in ("-d", "--database"):
                 self.database = arg
+
+            elif opt in ("-g", "--get-databases"):
+                self.option = ConfigOptions.get_databases
+
+            elif opt in ("-s", "--get-stats"):
+                self.option = ConfigOptions.get_stats
 
     def config_parser(self, config_file):
         settings = ConfigParser.ConfigParser()
@@ -66,5 +81,9 @@ if __name__ == '__main__':
     m = Mongo(c.connection_string,
               c.replica)
 
-    for database in m.get_databases():
-        print m.get_stats(database)
+    if (c.option == ConfigOptions.get_databases):
+        print m.get_databases()
+
+    if (c.option == ConfigOptions.get_stats):
+        for database in m.get_databases():
+            print m.get_stats(database)
