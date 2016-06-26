@@ -388,9 +388,18 @@ if __name__ == '__main__':
         print m.get_replSet()
 
     elif (c.option == ConfigOptions.get_members):
+        first = 1
         members = m.get_members()
+
+        print "{\"data\":["
         for member in members:
-            print member['name']
+            if first == 0:
+                sys.stdout.write(",\n")
+
+            sys.stdout.write("{\"{#RSNAME}\":\"%s\", \"{#RSTYPE}\":\"member\"}" % member['name'])
+            first = 0
+
+        print "\n]}"
 
     elif (c.option == ConfigOptions.get_health):
         print m.get_health(c.replSet_member)
