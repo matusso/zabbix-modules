@@ -323,8 +323,17 @@ if __name__ == '__main__':
     m = Mongo(c.connection_string)
 
     if (c.option == ConfigOptions.get_databases):
+        first = 1
+
+        print "{\"data\":["
         for database in m.get_databases():
-            print database
+            if first == 0:
+                 sys.stdout.write(",\n")
+
+            sys.stdout.write("{\"{#DBNAME}\":\"%s\", \"{#DBTYPE}\":\"mongo\"}" % database)
+            first = 0
+
+        print "\n]}"
 
     elif (c.option == ConfigOptions.get_stats):
         print json_util.dumps(m.get_stats(c.database))
