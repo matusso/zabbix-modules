@@ -26,15 +26,15 @@ def usage():
           "\t-e|--data-size <database>\t-\n" \
           "\t-n|--num-extents <database>\t-\n" \
           "\nreplica-parameters:\n" \
-          "\t-r|--get-replica\t\t- show replica informations\n" \
-          "\t-k|--replica-ok\t\t\t- show replica state\n" \
-          "\t-w|--members\t\t\t- show replica members\n" \
-          "\t-p|--replset\t\t\t- show replica name\n" \
-          "\t-y|--my-state\t\t\t-\n" \
-          "\t-H|--health <replSet_member>\t- show health state of replica member\n" \
-          "\t-T|--stateStr <replSet_member>\t- show state str of replica member\n" \
-          "\t-P|--ping <replSet_member>\t- show ping in miliseconds\n" \
-          "\t-B|--lastHeartbeat <replSet_member> - show last heartbeat\n" \
+          "\t-r|--get-replica\t\t\t- show replica informations\n" \
+          "\t-k|--replica-ok\t\t\t\t- show replica state\n" \
+          "\t-w|--members\t\t\t\t- show replica members\n" \
+          "\t-p|--replset\t\t\t\t- show replica name\n" \
+          "\t-y|--my-state\t\t\t\t-\n" \
+          "\t-H|--health <replSet_member>\t\t- show health state of replica member\n" \
+          "\t-T|--stateStr <replSet_member>\t\t- show state str of replica member\n" \
+          "\t-P|--ping <replSet_member>\t\t- show ping in miliseconds\n" \
+          "\t-B|--lastHeartbeat <replSet_member>\t- show last heartbeat\n" \
           "\nmongodb.py version {}".format(version)
 
 # options
@@ -247,11 +247,15 @@ class Mongo:
             if member['name'] == replSet_member and member['stateStr'] != 'PRIMARY':
                 return member['pingMs']
 
+        return 0
+
     def get_lastHeartbeat(self, replSet_member):
         members = self.get_members()
         for member in members:
             if member['name'] == replSet_member and member['stateStr'] != 'PRIMARY':
                 return json.loads(json_util.dumps(member['lastHeartbeat']))['$date']
+
+        return 0
 
     def get_members(self):
         db = self.client['admin']
