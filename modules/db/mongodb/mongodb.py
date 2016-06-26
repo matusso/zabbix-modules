@@ -32,6 +32,9 @@ def usage():
           "\t-p|--replset\t\t\t- show replica name\n" \
           "\t-y|--my-state\t\t\t-\n" \
           "\t-H|--health <replSet_member>\t- show health state of replica member\n" \
+          "\t-T|--stateStr <replSet_member>\t- show state str of replica member\n" \
+          "\t-P|--ping <replSet_member>\t- show ping in miliseconds\n" \
+          "\t-B|--lastHeartbeat <replSet_member> - show last heartbeat\n" \
           "\nmongodb.py version {}".format(version)
 
 # options
@@ -56,6 +59,9 @@ class ConfigOptions:
     get_replset         = 17
     get_members         = 18
     get_health          = 19
+    get_state_str       = 20
+    get_ping_ms         = 21
+    get_lastHeartbeat   = 22
 
 class Config:
 # mongo connection parameters
@@ -66,7 +72,7 @@ class Config:
 
     def cmdline_arg(self, argv):
         try:
-            opts, args = getopt.getopt(argv, "hgs:arkb:t:v:i:o:c:z:n:e:x:m:ypwH:", [
+            opts, args = getopt.getopt(argv, "hgs:arkb:t:v:i:o:c:z:n:e:x:m:ypwH:T:P:B:", [
                                                          "help",
                                                          "get-databases",
                                                          "get-stats=",
@@ -87,7 +93,10 @@ class Config:
                                                          "my-state",
                                                          "replset",
                                                          "members",
-                                                         "health="
+                                                         "health=",
+                                                         "stateStr=",
+                                                         "ping=",
+                                                         "lastHeartbeat="
                                                          ])
 
         except getopt.GetoptError:
@@ -172,6 +181,17 @@ class Config:
                 self.option = ConfigOptions.get_health
                 self.replSet_member = arg
 
+            elif opt in ("-T", "--stateStr"):
+                self.option = ConfigOptions.get_state_str
+                self.replSet_member = arg
+
+            elif opt in ("-P", "--ping"):
+                self.option = ConfigOptions.get_ping_ms
+                self.replSet_member = arg
+
+            elif opt in ("-B", "--lastHeartbeat"):
+                self.option = ConfigOptions.get_lastHeartbeat
+                self.replSet_member = arg
 
     def __init__(self, argv):
         self.cmdline_arg(argv)
@@ -214,6 +234,24 @@ class Mongo:
         for member in members:
             if member['name'] == replSet_member:
                 return member['health']
+
+    def get_state_str(self, replSet_member):
+        members = self.get_members()
+        for member in members:
+            if member['name'] == replSet_member:
+                return member['stateStr']
+
+    def get_ping_ms(self, replSet_member):
+        members = self.get_members()
+        for member in members:
+            if member['name'] == replSet_member and member['stateStr'] != 'PRIMARY':
+                return member['pingMs']
+
+    def get_lastHeartbeat(self, replSet_member):
+        members = self.get_members()
+        for member in members:
+            if member['name'] == replSet_member and member['stateStr'] != 'PRIMARY':
+                return json.loads(json_util.dumps(member['lastHeartbeat']))['$date']
 
     def get_members(self):
         db = self.client['admin']
@@ -343,3 +381,12 @@ if __name__ == '__main__':
 
     elif (c.option == ConfigOptions.get_health):
         print m.get_health(c.replSet_member)
+
+    elif (c.option == ConfigOptions.get_state_str):
+        print m.get_state_str(c.replSet_member)
+
+    elif (c.option == ConfigOptions.get_ping_ms):
+        print m.get_ping_ms(c.replSet_member)
+
+    elif (c.option == ConfigOptions.get_lastHeartbeat):
+        print m.get_lastHeartbeat(c.replSet_member)
