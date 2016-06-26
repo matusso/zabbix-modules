@@ -9,29 +9,30 @@ from bson import json_util
 version = 0.1
 
 def usage():
-    print "./mongodb.py -d|--database=<dbname>\n\n" \
+    print "mongodb.py\n\n" \
           "database-parameters:\n" \
-          "\t-g|--get-databases \n" \
-          "\t-s|--get-stats \n" \
-          "\t-a|--get-stats-all \n" \
-          "\t-b|--database-ok \n" \
-          "\t-t|--storage-size \n" \
-          "\t-v|--avgobj-size \n" \
-          "\t-i|--indexes \n" \
-          "\t-o|--objects \n" \
-          "\t-c|--collections \n" \
-          "\t-z|--file-size \n" \
-          "\t-m|--ns-size \n" \
-          "\t-x|--index-size \n" \
-          "\t-e|--data-size \n" \
-          "\t-n|--num-extents \n" \
+          "\t-g|--get-databases\t\t- show databases\n" \
+          "\t-s|--get-stats <database>\t- show database stats\n" \
+          "\t-a|--get-stats-all\t\t- show all databases stats\n" \
+          "\t-b|--database-ok <database>\t- show state of database\n" \
+          "\t-t|--storage-size <database>\t- show used space\n" \
+          "\t-v|--avgobj-size <database>\t- show average object size\n" \
+          "\t-i|--indexes <database>\t\t- show count of indexes\n" \
+          "\t-o|--objects <database>\t\t- show count of objects\n" \
+          "\t-c|--collections <database>\t- show count of collections\n" \
+          "\t-z|--file-size <database>\t-\n" \
+          "\t-m|--ns-size <database>\t\t-\n" \
+          "\t-x|--index-size <database>\t-\n" \
+          "\t-e|--data-size <database>\t-\n" \
+          "\t-n|--num-extents <database>\t-\n" \
           "\nreplica-parameters:\n" \
-          "\t-r|--get-replica \n" \
-          "\t-k|--replica-ok \n" \
-          "\t-w|--members \n" \
-          "\t-p|--replset \n" \
-          "\t-y|--my-state \n" \
-          "\nversion {}".format(version)
+          "\t-r|--get-replica\t\t- show replica informations\n" \
+          "\t-k|--replica-ok\t\t\t- show replica state\n" \
+          "\t-w|--members\t\t\t- show replica members\n" \
+          "\t-p|--replset\t\t\t- show replica name\n" \
+          "\t-y|--my-state\t\t\t-\n" \
+          "\t-H|--health <replSet_member>\t- show health state of replica member\n" \
+          "\nmongodb.py version {}".format(version)
 
 # options
 class ConfigOptions:
@@ -54,35 +55,39 @@ class ConfigOptions:
     get_mystate         = 16
     get_replset         = 17
     get_members         = 18
+    get_health          = 19
 
 class Config:
 # mongo connection parameters
     database = "local"
+    replSet_member = None
     connection_string = "mongodb://172.16.134.129:27017,172.16.134.135:27017/test?replicaSet=test"
     option = None
 
     def cmdline_arg(self, argv):
         try:
-            opts, args = getopt.getopt(argv, "hd:gsarkbtviocznexmypw", [ "help", "database=",
+            opts, args = getopt.getopt(argv, "hgs:arkb:t:v:i:o:c:z:n:e:x:m:ypwH:", [
+                                                         "help",
                                                          "get-databases",
-                                                         "get-stats",
+                                                         "get-stats=",
                                                          "get-stats-all",
                                                          "get-replica",
                                                          "replica-ok",
-                                                         "database-ok",
-                                                         "storage-size",
-                                                         "avgobj-size",
-                                                         "indexes",
-                                                         "objects",
-                                                         "collections",
-                                                         "file-size",
-                                                         "num-extents",
-                                                         "data-size",
-                                                         "index-size",
-                                                         "ns-size",
+                                                         "database-ok=",
+                                                         "storage-size=",
+                                                         "avgobj-size=",
+                                                         "indexes=",
+                                                         "objects=",
+                                                         "collections=",
+                                                         "file-size=",
+                                                         "num-extents=",
+                                                         "data-size=",
+                                                         "index-size=",
+                                                         "ns-size=",
                                                          "my-state",
                                                          "replset",
-                                                         "members"
+                                                         "members",
+                                                         "health="
                                                          ])
 
         except getopt.GetoptError:
@@ -94,14 +99,12 @@ class Config:
                 usage()
                 sys.exit(0)
 
-            elif opt in ("-d", "--database"):
-                self.database = arg
-
             elif opt in ("-g", "--get-databases"):
                 self.option = ConfigOptions.get_databases
 
             elif opt in ("-s", "--get-stats"):
                 self.option = ConfigOptions.get_stats
+                self.database = arg
 
             elif opt in ("-r", "--get-replica"):
                 self.option = ConfigOptions.get_replica
@@ -114,36 +117,47 @@ class Config:
 
             elif opt in ("-b", "--database-ok"):
                 self.option = ConfigOptions.is_database_ok
+                self.database = arg
 
             elif opt in ("-t", "--storage-size"):
                 self.option = ConfigOptions.get_storage_size
+                self.database = arg
 
             elif opt in ("-v", "--avgobj-size"):
                 self.option = ConfigOptions.get_avg_object_size
+                self.database = arg
 
             elif opt in ("-i", "--indexes"):
                 self.option = ConfigOptions.get_indexes
+                self.database = arg
 
             elif opt in ("-o", "--objects"):
                 self.option = ConfigOptions.get_objects
+                self.database = arg
 
             elif opt in ("-c", "--collections"):
                 self.option = ConfigOptions.get_collections
+                self.database = arg
 
             elif opt in ("-z", "--file-size"):
                 self.option = ConfigOptions.get_file_size
+                self.database = arg
 
             elif opt in ("-n", "--num-extents"):
                 self.option = ConfigOptions.get_num_extents
+                self.database = arg
 
             elif opt in ("-e", "--data-size"):
                 self.option = ConfigOptions.get_data_size
+                self.database = arg
 
             elif opt in ("-x", "--index-size"):
                 self.option = ConfigOptions.get_index_size
+                self.database = arg
 
             elif opt in ("-m", "--ns-size"):
                 self.option = ConfigOptions.get_ns_size_mb
+                self.database = arg
 
             elif opt in ("-y", "--my-state"):
                 self.option = ConfigOptions.get_mystate
@@ -153,6 +167,11 @@ class Config:
 
             elif opt in ("-w", "--members"):
                 self.option = ConfigOptions.get_members
+
+            elif opt in ("-H", "--health"):
+                self.option = ConfigOptions.get_health
+                self.replSet_member = arg
+
 
     def __init__(self, argv):
         self.cmdline_arg(argv)
@@ -190,10 +209,16 @@ class Mongo:
         replSet = json.loads(json_util.dumps(db.command('replSetGetStatus')))
         return replSet['set']
 
+    def get_health(self, replSet_member):
+        members = self.get_members()
+        for member in members:
+            if member['name'] == replSet_member:
+                return member['health']
+
     def get_members(self):
         db = self.client['admin']
-        members = json.loads(json_util.dumps(db.command('replSetGetStatus')))   
-        return members['members']
+        members = json.loads(json_util.dumps(db.command('replSetGetStatus')))
+        return json.loads(json_util.dumps(members['members']))
 
     ## database stats ##
     def is_database_ok(self, database):
@@ -312,6 +337,9 @@ if __name__ == '__main__':
         print m.get_replSet()
 
     elif (c.option == ConfigOptions.get_members):
-        members = json.loads(json_util.dumps(m.get_members()))
+        members = m.get_members()
         for member in members:
             print member['name']
+
+    elif (c.option == ConfigOptions.get_health):
+        print m.get_health(c.replSet_member)
