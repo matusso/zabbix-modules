@@ -6,9 +6,32 @@ import getopt
 import json
 from bson import json_util
 
-def usage():
-    print "./mongodb.py -d|--database=<dbname>"
+version = 0.1
 
+def usage():
+    print "./mongodb.py -d|--database=<dbname>\n\n" \
+          "database-parameters:\n" \
+          "\t-g|--get-databases \n" \
+          "\t-s|--get-stats \n" \
+          "\t-a|--get-stats-all \n" \
+          "\t-b|--database-ok \n" \
+          "\t-t|--storage-size \n" \
+          "\t-v|--avgobj-size \n" \
+          "\t-i|--indexes \n" \
+          "\t-o|--objects \n" \
+          "\t-c|--collections \n" \
+          "\t-z|--file-size \n" \
+          "\t-m|--ns-size \n" \
+          "\t-x|--index-size \n" \
+          "\t-e|--data-size \n" \
+          "\t-n|--num-extents \n" \
+          "\nreplica-parameters:\n" \
+          "\t-r|--get-replica \n" \
+          "\t-k|--replica-ok \n" \
+          "\t-w|--members \n" \
+          "\t-p|--replset \n" \
+          "\t-y|--my-state \n" \
+          "\nversion {}".format(version)
 
 # options
 class ConfigOptions:
@@ -31,7 +54,6 @@ class ConfigOptions:
     get_mystate         = 16
     get_replset         = 17
     get_members         = 18
-
 
 class Config:
 # mongo connection parameters
@@ -290,4 +312,6 @@ if __name__ == '__main__':
         print m.get_replSet()
 
     elif (c.option == ConfigOptions.get_members):
-        print m.get_members()
+        members = json.loads(json_util.dumps(m.get_members()))
+        for member in members:
+            print member['name']
