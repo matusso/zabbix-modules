@@ -67,7 +67,7 @@ class Config:
 # mongo connection parameters
     database = "local"
     replSet_member = None
-    connection_string = "mongodb://172.16.134.129:27017,172.16.134.135:27017/test?replicaSet=test"
+    connection_string = "mongodb://localhost/"
     option = None
 
     def cmdline_arg(self, argv):
