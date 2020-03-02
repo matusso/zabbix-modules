@@ -19,7 +19,7 @@ struct devlist {
     char * device;
     char * state;
     const char * message;
-    char pool[ZPOOL_MAXNAMELEN];
+    char pool[MAXNAMELEN];
 
     devlist_t * next;
 };
