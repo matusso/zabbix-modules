@@ -40,7 +40,7 @@ add_to_devlist(devlist_t * d, const char * device, const char * state, const cha
 
     strcpy(d->device, device);
     strcpy(d->state, state);
-    strncpy(d->pool, pool, ZPOOL_MAXNAMELEN);
+    strncpy(d->pool, pool, MAXNAMELEN);
     d->message = message;
 
     return 0;
