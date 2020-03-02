@@ -23,12 +23,8 @@ zpool_print_vdev(zpool_handle_t * zhp, void * data) {
     nvlist_t * config, * nvroot;
     vdev_stat_t * vs;
 
-#if defined(LINUX)
     zpool_errata_t errata;
     reason = zpool_get_status(zhp, &msgId, &errata);
-#else
-    reason = zpool_get_status(zhp, &msgId);
-#endif
 
     config = zpool_get_config(zhp, NULL);
 
@@ -103,6 +99,12 @@ zpool_print_vdev(zpool_handle_t * zhp, void * data) {
                         "currently being resilvered.  The pool will\n\tcontinue "
                         "to function, possibly in a degraded state.\n"
                         "action: Wait for the resilver to complete.\n");
+                break;
+
+            case ZPOOL_STATUS_CORRUPT_CACHE:
+                (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: The ZFS cache file is "
+                        "corrupted.\n"
+                        "action: Recover the pools by running 'zpool import'.\n");
                 break;
 
             case ZPOOL_STATUS_CORRUPT_DATA:
@@ -191,6 +193,7 @@ zpool_print_vdev(zpool_handle_t * zhp, void * data) {
                         "to be recovered.\n");
                 break;
 
+            case ZPOOL_STATUS_IO_FAILURE_MMP:
             case ZPOOL_STATUS_IO_FAILURE_WAIT:
             case ZPOOL_STATUS_IO_FAILURE_CONTINUE:
                 (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: One or more devices are "
@@ -208,7 +211,18 @@ zpool_print_vdev(zpool_handle_t * zhp, void * data) {
                         "device(s) and run 'zpool online',\n"
                         "\tor ignore the intent log records by running "
                         "'zpool clear'.\n");
+                break;
 
+            case ZPOOL_STATUS_BAD_GUID_SUM:
+                (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: One or more top level "
+                        "devices are missing.\n"
+                        "\tWaiting for adminstrator intervention to fix the "
+                        "faulted pool.\n"
+                        "action: Attach the missing device(s).\n");
+                break;
+
+            case ZPOOL_STATUS_HOSTID_ACTIVE:
+            case ZPOOL_STATUS_HOSTID_REQUIRED:
             case ZPOOL_STATUS_HOSTID_MISMATCH:
                 (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: Mismatch between pool hostid "
                         "and system hostid on imported pool.\n\tThis pool was "
@@ -220,10 +234,21 @@ zpool_print_vdev(zpool_handle_t * zhp, void * data) {
                         "\tThen import it to correct the mismatch.\n");
                 break;
 
+            case ZPOOL_STATUS_ERRATA:
+                (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: The ZFS pool contains an on-disk "
+                        "format incompatibility.\n"
+                        "Affected pools must be imported and scrubbed using the current ZFS version.\n"
+                        "This will return the pool to a state in which it may be imported by other implementations.\n"
+                        "action: Scrub the affected pool with 'zpool scrub'.\n");
+                break;
+
+            case ZPOOL_STATUS_OK:
+                (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: OK\n");
+                break;
+
 
             default:
-                (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: OK\n");
-                assert(reason == ZPOOL_STATUS_OK);
+                (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: Unknown ZFS status detected\n");
         }
     }
 
