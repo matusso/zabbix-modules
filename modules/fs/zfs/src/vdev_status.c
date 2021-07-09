@@ -23,8 +23,12 @@ zpool_print_vdev(zpool_handle_t * zhp, void * data) {
     nvlist_t * config, * nvroot;
     vdev_stat_t * vs;
 
+#if defined(FREEBSD_NO_OPENZFS)
+    reason = zpool_get_status(zhp, &msgId);
+#else
     zpool_errata_t errata;
     reason = zpool_get_status(zhp, &msgId, &errata);
+#endif
 
     config = zpool_get_config(zhp, NULL);
 
@@ -234,6 +238,7 @@ zpool_print_vdev(zpool_handle_t * zhp, void * data) {
                         "\tThen import it to correct the mismatch.\n");
                 break;
 
+#if !defined(FREEBSD_NO_OPENZFS)
             case ZPOOL_STATUS_ERRATA:
                 (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: The ZFS pool contains an on-disk "
                         "format incompatibility.\n"
@@ -241,6 +246,7 @@ zpool_print_vdev(zpool_handle_t * zhp, void * data) {
                         "This will return the pool to a state in which it may be imported by other implementations.\n"
                         "action: Scrub the affected pool with 'zpool scrub'.\n");
                 break;
+#endif
 
             case ZPOOL_STATUS_OK:
                 (void) snprintf(zstat->err_message, ERR_MESSAGE_SIZE, "status: OK\n");

@@ -40,6 +40,10 @@ LDADD= 		-lzfs -lnvpair
 
 endif 
 
+ifeq  ($(and $(shell test $(UNAME_S) == "FreeBSD"; echo $$?),$(shell test `uname -K` -lt 1300000; echo $$?)),0)
+CFLAGS+=	-DFREEBSD_NO_OPENZFS
+endif
+
 all: zio.c $(OBJ)
 	$(CC) $(CFLAGS) $(DPADD) -o $(PROG) $(OBJ) $(LDADD)
 
